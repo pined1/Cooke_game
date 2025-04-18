@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookie Clicker Challenge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f5e7d3;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    
+    .game-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    
+    .title {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: #8b4513;
+    }
+    
+    .timer {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #d73a3a;
+    }
+    
+    .score-display {
+      width: 100%;
+      background-color: #fff3e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    
+    .score-label {
+      font-weight: bold;
+      font-size: 18px;
+      color: #664422;
+    }
+    
+    .score-value {
+      font-size: 28px;
+      color: #8b4513;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    
+    .cookie {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      cursor: pointer;
+      transition: transform 0.1s;
+      margin: 10px 0;
+    }
+    
+    .cookie img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .counter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .click-effect {
+      position: absolute;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffcc00;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+      pointer-events: none;
+      animation: floatUp 1s ease-out forwards;
+      opacity: 0;
+    }
+    
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+    }
+    
+    .game-controls {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .instructions {
+      text-align: center;
+      color: #664422;
+      margin-bottom: 10px;
+    }
+    
+    .restart-btn {
+      padding: 10px 20px;
+      background-color: #8b4513;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .restart-btn:hover {
+      background-color: #6d3610;
+    }
+    
+    .start-message {
+      font-size: 20px;
+      color: #664422;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    .game-over {
+      font-size: 24px;
+      color: #d73a3a;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: center;
+    }
+    
+    .countdown {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      flex-direction: column;
+    }
+    
+    .countdown-number {
+      font-size: 150px;
+      color: white;
+      font-weight: bold;
+      animation: pulse 1s infinite;
+    }
+    
+    .countdown-text {
+      font-size: 24px;
+      color: white;
+      margin-top: 20px;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1 class="title">Cookie Clicker Challenge</h1>
+    
+    <div class="score-display">
+      <div class="score-label">YOUR SCORE</div>
+      <div class="score-value" id="score-display">0</div>
+    </div>
+    
+    <div class="timer" id="timer">Time: 10s</div>
+    
+    <div class="start-message" id="start-message">Press SPACE to start!</div>
+    
+    <div class="cookie" id="cookie">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='240' fill='%23d2a265'/%3E%3Ccircle cx='120' cy='180' r='30' fill='%23614126'/%3E%3Ccircle cx='180' cy='320' r='25' fill='%23614126'/%3E%3Ccircle cx='280' cy='160' r='28' fill='%23614126'/%3E%3Ccircle cx='350' cy='260' r='33' fill='%23614126'/%3E%3Ccircle cx='230' cy='230' r='20' fill='%23614126'/%3E%3Ccircle cx='310' cy='340' r='27' fill='%23614126'/%3E%3C/svg%3E" alt="Cookie">
+      <div class="counter" id="counter">0</div>
+    </div>
+    
+    <div class="instructions">
+      Tap SPACE BAR as fast as you can!<br>
+      You have 10 seconds to get the highest score
+    </div>
+    
+    <div id="game-over-message" class="game-over" style="display: none;"></div>
+    
+    <div class="game-controls">
+      <button class="restart-btn" id="restart-btn">Restart Game</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const cookie = document.getElementById('cookie');
+      const counter = document.getElementById('counter');
+      const timerElement = document.getElementById('timer');
+      const restartBtn = document.getElementById('restart-btn');
+      const scoreDisplay = document.getElementById('score-display');
+      const startMessageElement = document.getElementById('start-message');
+      const gameOverMessageElement = document.getElementById('game-over-message');
+      
+      let count = 0;
+      let timerValue = 10;
+      let timerInterval;
+      let gameActive = false;
+      let spacebarEnabled = true;
+      let countdownActive = false;
+      
+      function updateCounter() {
+        counter.textContent = count;
+      }
+      
+      function updateTimer() {
+        timerElement.textContent = `Time: ${timerValue}s`;
+      }
+      
+      function createClickEffect() {
+        const effect = document.createElement('div');
+        effect.classList.add('click-effect');
+        effect.textContent = '+1';
+        
+        // Random position around the cookie
+        const x = Math.random() * 200 - 50;
+        const y = Math.random() * 200 - 50;
+        
+        effect.style.left = `${x}px`;
+        effect.style.top = `${y}px`;
+        
+        cookie.appendChild(effect);
+        
+        setTimeout(() => {
+          effect.remove();
+        }, 1000);
+      }
+      
+      function showCountdown(message, callback) {
+        countdownActive = true;
+        spacebarEnabled = false;
+        
+        // Create countdown overlay
+        const countdown = document.createElement('div');
+        countdown.classList.add('countdown');
+        
+        const countdownNumber = document.createElement('div');
+        countdownNumber.classList.add('countdown-number');
+        
+        const countdownText = document.createElement('div');
+        countdownText.classList.add('countdown-text');
+        countdownText.textContent = message;
+        
+        countdown.appendChild(countdownNumber);
+        countdown.appendChild(countdownText);
+        document.body.appendChild(countdown);
+        
+        // Start countdown sequence
+        let count = 3;
+        countdownNumber.textContent = count;
+        
+        const countInterval = setInterval(() => {
+          count--;
+          
+          if (count > 0) {
+            countdownNumber.textContent = count;
+          } else {
+            countdownNumber.textContent = "GO!";
+            
+            setTimeout(() => {
+              clearInterval(countInterval);
+              document.body.removeChild(countdown);
+              countdownActive = false;
+              spacebarEnabled = true;
+              if (callback) callback();
+            }, 800);
+          }
+        }, 1000);
+      }
+      
+      function startGame() {
+        if (gameActive || countdownActive) return;
+        
+        showCountdown('Get ready!', () => {
+          gameActive = true;
+          count = 0;
+          timerValue = 10;
+          updateCounter();
+          updateTimer();
+          
+          startMessageElement.style.display = 'none';
+          gameOverMessageElement.style.display = 'none';
+          
+          timerInterval = setInterval(() => {
+            timerValue--;
+            updateTimer();
+            
+            if (timerValue <= 0) {
+              endGame();
+            }
+          }, 1000);
+        });
+      }
+      
+      function endGame() {
+        clearInterval(timerInterval);
+        gameActive = false;
+        
+        // Update score display
+        scoreDisplay.textContent = count;
+        
+        gameOverMessageElement.textContent = `Game Over! Your score: ${count}`;
+        gameOverMessageElement.style.display = 'block';
+        startMessageElement.style.display = 'block';
+        startMessageElement.textContent = 'Press SPACE to play again!';
+      }
+      
+      function resetGame() {
+        if (countdownActive) return;
+        
+        clearInterval(timerInterval);
+        gameActive = false;
+        count = 0;
+        timerValue = 10;
+        
+        updateCounter();
+        updateTimer();
+        
+        gameOverMessageElement.style.display = 'none';
+        startMessageElement.style.display = 'block';
+        startMessageElement.textContent = 'Press SPACE to start!';
+      }
+      
+      function handleCookieClick() {
+        if (!gameActive || !spacebarEnabled) return;
+        
+        count++;
+        updateCounter();
+        
+        // Play animation
+        cookie.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          cookie.style.transform = 'scale(1)';
+        }, 100);
+        
+        // Create the +1 effect
+        createClickEffect();
+      }
+      
+      // Listen for spacebar press
+      document.addEventListener('keydown', function(event) {
+        if (event.code === 'Space') {
+          event.preventDefault(); // Prevent scrolling when pressing space
+          
+          if (!gameActive && spacebarEnabled && !countdownActive) {
+            startGame();
+          } else if (gameActive && spacebarEnabled) {
+            handleCookieClick();
+          }
+        }
+      });
+      
+      // Restart button click event
+      restartBtn.addEventListener('click', function() {
+        if (!countdownActive) {
+          resetGame();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
